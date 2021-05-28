@@ -1,46 +1,16 @@
-terraform {
-  required_providers {
-    k8s = {
-      source  = "banzaicloud/k8s"
-      version = ">= 0.9.1"
-    }
-  }
+
+module "install_ngrok_operator" {
+  source = "../modules/ngrok"
 }
 
-locals {
-  kube_config_path = "~/.kube/config"
+module "install_cert_mananger" {
+  source = "../modules/cert-manager"
 }
 
-provider "kubernetes" {
-  config_path = local.kube_config_path
-}
-
-provider "helm" {
-  kubernetes {
-    config_path = local.kube_config_path
-  }
-}
-
-module "install_ambassador" {
-  source = "../modules/ambassador"
-}
-
-module "install_argo" {
-  source = "../modules/argo"
-}
-
-# ----------------------------------------------------------------------------------------------------------------------
-# Create API Gateway & Routing internal services
-# ----------------------------------------------------------------------------------------------------------------------
-data "template_file" "routing-argo-deployment" {
-  template = file("./manifests/routing-argo-deployment.yaml")
-}
-
-resource "k8s_manifest" "routing-argo-server" {
-  timeouts {
-    create = "5m"
-    delete = "5m"
-  }
-  content   = data.template_file.routing-argo-deployment.rendered
-  namespace = "argocd"
+module "install_github_actions" {
+  source       = "../modules/github-actions"
+  github_token = var.github_token
+  depends_on = [
+    module.install_cert_mananger.id
+  ]
 }

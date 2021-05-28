@@ -33,4 +33,12 @@ resource "helm_release" "ambassador-helm" {
   chart      = "ambassador"
   version    = var.ambassador_version
   namespace  = var.ambassador_namespace
+  depends_on = [
+    kubernetes_namespace.ambassador-namespace
+  ]
+
+  set {
+    name  = "enableAES"
+    value = false
+  }
 }

@@ -6,4 +6,4 @@ metadata:
 spec:
   prefix: /argo-cd
   rewrite: /argo-cd
-  service: argocd-server:443
+  service: argocd-server
